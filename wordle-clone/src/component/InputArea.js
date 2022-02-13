@@ -1,12 +1,25 @@
 import React, { useState } from "react";
+import styled from "styled-components";
+
+const GuessContainer = styled.div`
+  margin: 0 auto;
+  width: 500px;
+  display: flex;
+`;
+
+const LetterContainer = styled.div`
+  border: 5px solid black;
+  margin: 5px 10px;
+  padding: 10px;
+`;
 
 const InputArea = () => {
   const [input, setInput] = useState("");
   const [guess, setGuess] = useState("");
 
   const handleInput = (e) => {
-    if (e.target.value.includes(" ")) {
-      e.target.value = e.target.value.replace(/\s/g, "");
+    if (e.target.value.match(/\W|\d/)) {
+      e.target.value = e.target.value.replace(/\W|\d/g, "");
     }
     setInput(e.target.value);
 
@@ -38,6 +51,11 @@ const InputArea = () => {
           onBlur={reFocus}
           autoFocus
         />
+        <GuessContainer>
+          {input.split("").map((character, index) => {
+            return <LetterContainer key={index}>{character}</LetterContainer>;
+          })}
+        </GuessContainer>
         <button onClick={buttonClicked}>W</button>
       </form>
     </div>
