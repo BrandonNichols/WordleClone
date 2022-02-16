@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 const GuessContainer = styled.div`
@@ -13,7 +13,7 @@ const LetterContainer = styled.div`
   padding: 10px;
 `;
 
-const InputArea = () => {
+const InputArea = (props) => {
   const [input, setInput] = useState("");
   const [guess, setGuess] = useState("");
 
@@ -38,6 +38,10 @@ const InputArea = () => {
       setInput(input + "w");
     }
   };
+
+  useEffect(() => {
+    console.log("DATA: ", props.dictionary);
+  }, []);
 
   return (
     <div>
