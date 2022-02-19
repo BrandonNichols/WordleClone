@@ -1,10 +1,32 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 const GuessContainer = styled.div`
   margin: 0 auto;
   width: 500px;
   display: flex;
+`;
+
+const InputField = styled.input`
+  opacity: 0;
+`;
+
+const WrongAnswerAnimation = keyframes`
+  0%{
+    transform: translate(-2%);
+  }
+
+  25%{
+    transform: translate(4%);
+  }
+
+  50%{
+    transform: translate(-4%);
+  }
+
+  100%{
+    transform: translate(2%);
+  }
 `;
 
 const LetterContainer = styled.div`
@@ -14,11 +36,15 @@ const LetterContainer = styled.div`
   font-size: 2rem;
   text-transform: uppercase;
   min-width: 2rem;
+  animation: ${(props) =>
+      props.canAnimate && props.animate ? WrongAnswerAnimation : "none"}
+    0.2s;
 `;
 
 const InputArea = (props) => {
   const [input, setInput] = useState("");
   const [guess, setGuess] = useState([]);
+  const [animate, setAnimate] = useState(false);
 
   const handleInput = (e) => {
     if (e.target.value.match(/\W|\d/)) {
@@ -53,6 +79,8 @@ const InputArea = (props) => {
     console.log("KEY: ", e.key);
     if (e.key === "Enter") {
       e.preventDefault();
+      setAnimate(true);
+      setInput("");
       const submitButton = document.querySelector('button[type="submit"]');
       submitButton.click();
     }
@@ -61,7 +89,7 @@ const InputArea = (props) => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <input
+        <InputField
           type="text"
           name="wordle-input"
           maxLength="5"
@@ -70,13 +98,34 @@ const InputArea = (props) => {
           onBlur={reFocus}
           onKeyDown={handleKeyDown}
           autoFocus
+          autoComplete="off"
         />
-        {guess.map((word, index) => {
+        {guess.map((word, guessIndex) => {
           return (
-            <GuessContainer key={index}>
+            <GuessContainer key={guessIndex}>
               {word.split("").map((character, index) => {
                 return (
-                  <LetterContainer key={index}>{character}</LetterContainer>
+                  <LetterContainer
+                    key={index}
+                    onAnimationStart={() =>
+                      (document.querySelector(
+                        "input[type='text']"
+                      ).disabled = true)
+                    }
+                    onAnimationEnd={() => {
+                      setAnimate(false);
+                      setTimeout(function () {
+                        document.querySelector(
+                          "input[type='text']"
+                        ).disabled = false;
+                        reFocus();
+                      }, 300);
+                    }}
+                    animate={animate}
+                    canAnimate={guessIndex + 1 === guess.length}
+                  >
+                    {character}
+                  </LetterContainer>
                 );
               })}
             </GuessContainer>
