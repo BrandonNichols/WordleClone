@@ -1,5 +1,6 @@
 import React from "react";
 import "./App.css";
+import "normalize.css";
 import InputArea from "./component/InputArea";
 import { data } from "./data/data";
 
