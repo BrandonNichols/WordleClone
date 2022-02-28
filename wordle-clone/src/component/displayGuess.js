@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useRef } from "react";
 import styled, { keyframes } from "styled-components";
-import Letter from "./Letter";
 
 const GuessContainer = styled.div`
   margin: 0 auto;
@@ -26,92 +25,77 @@ const WrongAnswerAnimation = keyframes`
   }
 `;
 
-const RightAnswerAnimation = keyframes`
+const RightAnswerAnimation = (backGroundColor, color) => keyframes`
   0%{
-    transform: scaleY(1)
+    transform: scaleY(1);
+    background-color: white;
   }
 
   50%{
-    transform: scaleY(0)
+    transform: scaleY(0);
+    background-color: white;
   }
 
   100%{
-    transform: scaleY(1)
+    transform: scaleY(1);
+    background-color: ${backGroundColor};
+    color: ${color};
   }
 `;
 
-const LetterContainer = styled.div`
-  border: 5px solid black;
-  margin: 5px 10px;
+const RightAnswerContainer = styled.div`
+  background-color: white;
+  color: black;
+  border: 2px solid grey;
+  margin: 5px;
   padding: 10px;
-  font-size: 2rem;
+  font-size: 2.5rem;
   text-transform: uppercase;
-  min-width: 2rem;
-  animation-name: ${(props) => {
-    switch (props.animate) {
-      case "wrong":
-        if (props.currentGuess) {
-          return WrongAnswerAnimation;
-        } else {
-          return "none";
-        }
-      case "right":
-        if (props.canAnimate) {
-          return RightAnswerAnimation;
-        } else {
-          return "none";
-        }
-      default:
-        return "none";
-    }
-  }};
-  animation-duration: ${(props) => props.duration};
+  min-width: 2.5rem;
+  animation-name: ${(props) =>
+    RightAnswerAnimation(props.backGroundColor, props.color)};
+  animation-duration: ${(props) => props.duration}ms;
+  animation-delay: ${(props) => props.delay}ms;
+  animation-fill-mode: forwards;
+`;
+
+const WrongAnswerContainer = styled(RightAnswerContainer)`
+  animation-name: ${(props) =>
+    props.wrongAnimation ? WrongAnswerAnimation : "none"};
+  animation-delay: 0s;
 `;
 
 const DisplayGuess = (props) => {
-  const DURATION = 300;
-
-  const letterAnimationSquish = (e, canAnimate, animationDelay) => {
-    if (canAnimate) {
-      const nextLetter = e.nextElementSibling;
-      if (nextLetter) {
-        nextLetter.animate(
-          [
-            { transform: "scaleY(1)" },
-            { transform: "scaleY(0)" },
-            { transform: "scaleY(1)" }
-          ],
-          { duration: DURATION, delay: animationDelay }
-        );
-
-        letterAnimationSquish(
-          nextLetter,
-          canAnimate,
-          animationDelay + DURATION
-        );
-      }
-    }
-  };
+  const DURATION_RIGHT = 300;
+  const DURATION_WRONG = 200;
+  const delay = useRef(0);
 
   return (
     <>
       {props.guess.map((word, guessIndex) => {
+        delay.current = -DURATION_RIGHT;
         return (
           <GuessContainer key={guessIndex}>
             {word.split("").map((character, index) => {
+              delay.current = delay.current + DURATION_RIGHT;
               return (
-                <Letter
+                <RightAnswerContainer
                   key={index}
-                  animationStart={letterAnimationSquish}
-                  timeOut={1100}
-                  reFocus={props.reFocus}
-                  animate={props.animate && index === 0 ? "right" : "none"}
-                  currentGuess={false}
-                  canAnimate={guessIndex + 1 === props.guess.length}
-                  duration={DURATION}
-                  character={character}
-                  setAnimation={props.setAnimation}
-                />
+                  onAnimationEnd={() => {
+                    setTimeout(function () {
+                      document.querySelector(
+                        "input[type='text']"
+                      ).disabled = false;
+                      props.reFocus();
+                    }, 1100);
+                  }}
+                  duration={DURATION_RIGHT}
+                  delay={delay.current}
+                  backGroundColor={props.colors[guessIndex][index]}
+                  color="white"
+                >
+                  {character}
+                </RightAnswerContainer>
               );
             })}
           </GuessContainer>
@@ -120,20 +104,20 @@ const DisplayGuess = (props) => {
       <GuessContainer>
         {props.input.split("").map((character, index) => {
           return (
-            <Letter
+            <WrongAnswerContainer
               key={index}
-              animationStart={() =>
-                (document.querySelector("input[type='text']").disabled = true)
-              }
-              timeOut={300}
-              reFocus={props.reFocus}
-              animate={props.animate}
-              currentGuess={true}
-              canAnimate={false}
-              duration={200}
-              character={character}
-              setAnimation={props.setAnimation}
-            />
+              onAnimationEnd={() => {
+                setTimeout(function () {
+                  props.setWrongAnimation(false);
+                  document.querySelector("input[type='text']").disabled = false;
+                  props.reFocus();
+                }, 300);
+              }}
+              duration={DURATION_WRONG}
+              wrongAnimation={props.wrongAnimation}
+            >
+              {character}
+            </WrongAnswerContainer>
           );
         })}
       </GuessContainer>

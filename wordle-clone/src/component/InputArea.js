@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import DisplayGuess from "./displayGuess";
+import { randomWord } from "../util/WordGenerator";
 
 const InputField = styled.input`
   opacity: 0;
@@ -9,7 +10,8 @@ const InputField = styled.input`
 const InputArea = (props) => {
   const [input, setInput] = useState("");
   const [guess, setGuess] = useState([]);
-  const [animate, setAnimation] = useState("");
+  const [wrongAnimation, setWrongAnimation] = useState(false);
+  const [colors, setColors] = useState([]);
 
   const handleInput = (e) => {
     if (e.target.value.match(/\W|\d/)) {
@@ -40,18 +42,36 @@ const InputArea = (props) => {
     }
   };
 
+  const guessColors = () => {
+    const colorArray = [];
+    input.split("").forEach((character, index) => {
+      if (randomWord.includes(character)) {
+        colorArray.push("#c9b458");
+        if (randomWord.charAt(index) === character) {
+          colorArray[index] = "#6aaa64";
+        }
+      } else {
+        colorArray.push("#787c7e");
+      }
+    });
+
+    setColors([...colors, [...colorArray]]);
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
 
+      console.log("WORD: ", randomWord);
+
       if (input in props.dictionary) {
         document.querySelector("input[type='text']").disabled = true;
+        guessColors();
         setInput("");
         const submitButton = document.querySelector('button[type="submit"]');
         submitButton.click();
-        setAnimation("right");
       } else {
-        setAnimation("wrong");
+        setWrongAnimation(true);
       }
     }
   };
@@ -62,8 +82,9 @@ const InputArea = (props) => {
         guess={guess}
         input={input}
         reFocus={reFocus}
-        animate={animate}
-        setAnimation={setAnimation}
+        wrongAnimation={wrongAnimation}
+        setWrongAnimation={setWrongAnimation}
+        colors={colors}
       />
       <form onSubmit={handleSubmit}>
         <InputField
