@@ -43,15 +43,27 @@ const InputArea = (props) => {
   };
 
   const guessColors = () => {
-    const colorArray = [];
-    input.split("").forEach((character, index) => {
-      if (randomWord.includes(character)) {
-        colorArray.push("#c9b458");
-        if (randomWord.charAt(index) === character) {
-          colorArray[index] = "#6aaa64";
+    const colorArray = new Array(5);
+    const tempInput = [...input.split("")];
+    let tempWord = randomWord.split("");
+
+    tempInput.forEach((letter, index) => {
+      if (randomWord.charAt(index) === letter) {
+        colorArray[index] = "#6aaa64";
+        tempInput[index] = null;
+        tempWord[index] = null;
+      }
+    });
+
+    tempWord = tempWord.join("");
+
+    tempInput.forEach((letter, index) => {
+      if (letter) {
+        if (tempWord.includes(letter)) {
+          colorArray[index] = "#c9b458";
+        } else {
+          colorArray[index] = "#787c7e";
         }
-      } else {
-        colorArray.push("#787c7e");
       }
     });
 
