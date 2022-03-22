@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import DisplayGuess from "./displayGuess";
+import DisplayGuess from "./DisplayGuess";
 import { randomWord } from "../util/WordGenerator";
 
 const InputField = styled.input`

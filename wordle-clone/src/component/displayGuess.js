@@ -1,10 +1,19 @@
 import React, { useRef } from "react";
 import styled, { keyframes } from "styled-components";
+import DisplayGrid from "./DisplayGrid";
+
+const DisplayArea = styled.div`
+  position: relative;
+  margin: 0 auto;
+  width: 500px;
+`;
 
 const GuessContainer = styled.div`
   margin: 0 auto;
-  width: 500px;
+  width: 67%;
   display: flex;
+  font-size: 2rem;
+  font-weight: bold;
 `;
 
 const WrongAnswerAnimation = keyframes`
@@ -46,10 +55,8 @@ const RightAnswerAnimation = (backGroundColor, color) => keyframes`
 const RightAnswerContainer = styled.div`
   background-color: white;
   color: black;
-  border: 2px solid grey;
-  margin: 5px;
+  margin: 3px 3.5px 3.5px;
   padding: 10px;
-  font-size: 2.5rem;
   text-transform: uppercase;
   min-width: 2.5rem;
   animation-name: ${(props) =>
@@ -71,7 +78,8 @@ const DisplayGuess = (props) => {
   const delay = useRef(0);
 
   return (
-    <>
+    <DisplayArea>
+      <DisplayGrid />
       {props.guess.map((word, guessIndex) => {
         delay.current = -DURATION_RIGHT;
         return (
@@ -121,7 +129,7 @@ const DisplayGuess = (props) => {
           );
         })}
       </GuessContainer>
-    </>
+    </DisplayArea>
   );
 };
 
